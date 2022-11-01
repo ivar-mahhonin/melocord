@@ -1,11 +1,10 @@
-import React from 'react';
-import logo from './logo.svg';
 import './App.scss';
+import Melocord from './melocord/Melocord';
 
-function App() {
+const App = () => {
   return (
     <div className="App">
-      Melocord
+      <Melocord></Melocord>
     </div>
   );
 }

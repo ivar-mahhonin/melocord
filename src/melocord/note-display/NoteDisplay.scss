@@ -1,0 +1,22 @@
+.NoteDisplay {
+  border: 1px solid gray;
+  max-height: 120px;
+  max-width: 300px;
+  display: flex;
+  position: relative;
+  flex-direction: column;
+  cursor: pointer;
+
+  .label {
+    text-align: left;
+    margin-left: 10px;
+  }
+
+  .scale-drawing svg:nth-child(1) {
+    height: 115px;
+  }
+
+  .scale-drawing svg:nth-child(2) {
+    display: none;
+  }
+}
