@@ -1,6 +1,6 @@
 import './Melocord.scss';
-import MelocordTabs from '../nav/navbar/NavBar';
 import { Outlet } from 'react-router-dom';
+import MelocordTabs from '../../components/navigation/navbar/NavBar';
 
 const Melocord = () => {
     const nav = MelocordTabs();

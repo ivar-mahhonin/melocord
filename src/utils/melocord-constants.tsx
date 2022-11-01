@@ -5,3 +5,5 @@ export const OCTAVE_BREAKER = "C";
 export const LOW_OCTAVE = 3;
 export const HIGH_OCTAVE = 4;
 export const NATURAL_NOTES = OCTAVE.filter(note => !note.includes("#"));
+export const MAJOR = 'major';
+export const MINOR = 'major';

@@ -1,5 +1,5 @@
 import './App.scss';
-import Melocord from './melocord/Melocord';
+import Melocord from './pages/main/Melocord';
 
 const App = () => {
   return (

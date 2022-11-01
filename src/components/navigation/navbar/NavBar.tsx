@@ -4,7 +4,7 @@ import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import Box from '@mui/material/Box';
 import { useNavigate } from 'react-router-dom';
-import { ROUTES } from '../../routes/Routes';
+import { ROUTES } from '../../../routes/Routes';
 
 export default function MelocordTabs() {
   const [value, setValue] = React.useState(0);
