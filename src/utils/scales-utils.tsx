@@ -1,14 +1,14 @@
 import { HIGH_OCTAVE, LOW_OCTAVE, MAJOR_SCALE_STEPS, MINOR_SCALE_STEPS, OCTAVE, OCTAVE_BREAKER } from "./melocord-constants";
 
 class ScalesUtils {
-    static makeScale(
+    static makeScaleNotes(
         key: string,
         major: boolean,
         low: boolean,
         lowOctave = LOW_OCTAVE,
         hightOctave = HIGH_OCTAVE,
         octave = OCTAVE,
-        octaveBreaker = OCTAVE_BREAKER): string {
+        octaveBreaker = OCTAVE_BREAKER): string[] {
         const stepsPattern = major ? MAJOR_SCALE_STEPS : MINOR_SCALE_STEPS
         const octavePitch = low ? lowOctave : hightOctave;
         const index = OCTAVE.findIndex(note => note === key);
@@ -27,7 +27,7 @@ class ScalesUtils {
             }
             return { notes, step, pattern, fixOctave };
         }, { notes: [`${key}${octavePitch}`] as string[], pattern: [...stepsPattern], step: 1, fixOctave: false });
-        return scaleNotes.notes.map(n => (`${n}/q`)).join(', ');
+        return scaleNotes.notes.map(n => (`${n}/q`));
     }
 
     private static shiftNotes(array: string[], steps: number): string[] {

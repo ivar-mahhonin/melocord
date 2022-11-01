@@ -7,16 +7,10 @@ import './SelectedScale.scss'
 import { MAJOR } from "../../utils/melocord-constants";
 
 
-const SelectedScale = (match: any) => {
+const SelectedScale = () => {
     const { type, note } = useParams();
-
-    React.useEffect(() => {
-        console.log(type, note);
-    }, []);
-
-
     return (<div className="SelectedScale">
-        <NoteDisplay scale={note || ''} major={type === MAJOR} />
+        <NoteDisplay scale={note || ''} major={type === MAJOR} withHoverEffect={false} showPlayButton={true}/>
     </div>);
 }
 

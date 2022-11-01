@@ -7,10 +7,10 @@ import SelectedScale from "../pages/selected-scale/SelectedScale"
 export const ROUTES = {
     MINOR_SCALES: '/minor-scales',
     MAJOR_SCALES: '/major-scales',
-    SELECTED_SCALE:'/selected/:type/:note',
+    SELECTED_SCALE: '/selected/:type/:note',
 }
 
-const Routing = () => {
+const Routing = (): JSX.Element => {
     return (<BrowserRouter>
         <Routes>
             <Route path="/" element={<App />}>
