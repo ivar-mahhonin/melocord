@@ -9,8 +9,7 @@ import { MAJOR, MINOR } from '../../utils/melocord-constants';
 import { Button } from '@mui/material';
 import { PlayCircle, StopCircle } from '@mui/icons-material';
 import InstrumentUtils from '../../utils/instrument-utils';
-
-const { Factory } = Vex.Flow;
+const { Renderer, Stave, StaveNote, Voice, Formatter, Accidental, Factory } = Vex.Flow;
 
 interface NoteDisplayProps {
     scale: string;
@@ -20,21 +19,40 @@ interface NoteDisplayProps {
 }
 
 const NoteDisplay = ({ scale, major, withHoverEffect = true, showPlayButton = false }: NoteDisplayProps) => {
-    const [{ playing }, setState] = useState({ playing: InstrumentUtils.isPlaying() });
+    const [{ playing, staveNotes }, setState] = useState({ playing: InstrumentUtils.isPlaying(), staveNotes: [] as any[] });
 
-    const id = uuidv4();
+    const elementId = uuidv4();
     let rendered = false;
-    const notes: string[] = ScalesUtils.makeScaleNotes(scale, major, false); // FIXME
+    const notes: string[] = ScalesUtils.makeScaleNotes(scale, major); // FIXME
 
     React.useEffect(() => {
         if (!rendered) {
-            const factory = new Factory({ renderer: { elementId: id } });
-            const score = factory.EasyScore();
-            const system = factory.System({ width: 280, spaceBetweenStaves: 10 });
-            const voice = score.voice(score.notes(notes.join(', ')), { time: '7/4' });
-            system.addStave({ voices: [voice] }).addClef('treble');
-            factory.draw();
-            rendered = true;
+            const div = document.getElementById(elementId);
+            if (div) {
+                console.log(notes)
+                const renderer = new Renderer(div, Renderer.Backends.SVG);
+                renderer.resize(280, 120);
+                const context = renderer.getContext();
+                const stave = new Stave(10, 5, 260);
+                stave.addClef('treble');
+                stave.setContext(context).draw();
+
+                const voice = new Voice({ num_beats: 7, beat_value: 4 });
+
+                const staveNotes = notes.map(n => {
+                    const note = new StaveNote({ keys: [n], duration: "q" });
+                    if (n.includes('#')) {
+                        note.addModifier(new Accidental("#"), 0);
+                    }
+                    return note;
+                })
+
+                voice.addTickables(staveNotes);
+                new Formatter().joinVoices([voice]).format([voice], 220);
+                voice.draw(context, stave);
+                setState({ playing, staveNotes });
+                rendered = true;
+            }
         }
     }, []);
 
@@ -45,23 +63,51 @@ const NoteDisplay = ({ scale, major, withHoverEffect = true, showPlayButton = fa
     const selectScale = () => navigate(ROUTES.SELECTED_SCALE.replace(':type', major ? MAJOR : MINOR).replace(':note', scale));
 
     const playTones = () => {
+        clearNotesStyles();
         if (InstrumentUtils.isPlaying()) {
             InstrumentUtils.stopPlaying();
-            setState({playing: false});
+            setState({ playing: false, staveNotes });
         }
         else {
-            setState({playing: true});
-            InstrumentUtils.playTones(notes, () => setState({playing: false}));
+            setState({ playing: true, staveNotes });
+
+            const onStop = () => {
+                setState({ playing: false, staveNotes });
+                clearNotesStyles();
+            };
+
+            let beatTimes = 0;
+            const onBeat = (timer: NodeJS.Timer) => {
+                const index = beatTimes;
+                const note = staveNotes[index];
+                if (note) {
+                    setNoteStyle(note, "#f44336");
+                    beatTimes++;
+                }
+                else {
+                    clearInterval(timer);
+                    clearNotesStyles();
+                }
+            };
+
+            InstrumentUtils.playTones(notes, onBeat, onStop);
         }
     }
 
+    const setNoteStyle = (note: any, style: string) => {
+        note.setStyle({ strokeStyle: style, fillStyle: style });
+        note.draw();
+    }
+
+    const clearNotesStyles = () => staveNotes.forEach(note => setNoteStyle(note, "black"));
+    
     const renderPlayButton = () => {
         let button;
         if (showPlayButton) {
             const icon = playing ? <StopCircle /> : <PlayCircle />;
-            button = (<div className="play-button">
+            button = (<div className={`play-button ${playing ? 'stop' : ''}`}>
                 <Button variant="contained" endIcon={icon} onClick={playTones}>
-                    Play
+                    {playing ? 'Stop' : 'Play'}
                 </Button>
             </div>);
         }
@@ -72,7 +118,7 @@ const NoteDisplay = ({ scale, major, withHoverEffect = true, showPlayButton = fa
         <div className={`NoteDisplay ${withHoverEffect ? 'with-hover' : ''}`} onClick={selectScale}>
             {renderPlayButton()}
             <div className="label">{scale} {major ? MAJOR : MINOR} scale</div>
-            <div className="scale-drawing" id={id} />
+            <div className="scale-drawing" id={elementId} />
         </div>);
 }
 

@@ -1,7 +1,5 @@
 .NoteDisplay {
   border: 1px solid rgba(128, 128, 128, 0.42);
-  max-height: 120px;
-  max-width: 300px;
   display: flex;
   position: relative;
   flex-direction: column;
@@ -14,12 +12,15 @@
 
   .label {
     text-align: left;
-    margin-left: 10px;
+    position: absolute;
+    left: 10px;
+    top: 10px;
   }
 
-  .scale-drawing svg:nth-child(1) {
-    height: 115px;
+  .scale-drawing svg {
+    margin-top: 34px;
   }
+
 
   .scale-drawing svg:nth-child(2) {
     display: none;
@@ -33,6 +34,12 @@
     button {
       height: 30px;
       background-color: #ffac33;
+    }
+  }
+
+  .play-button.stop {
+    button {
+      background-color: #f6685e;
     }
   }
 }
