@@ -6,7 +6,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '../../routes/Routes';
 import { MAJOR, MINOR } from '../../utils/melocord-constants';
-import { Button } from '@mui/material';
+import { Button, IconButton } from '@mui/material';
 import { PlayCircle, StopCircle } from '@mui/icons-material';
 import InstrumentUtils from '../../utils/instrument-utils';
 const { Renderer, Stave, StaveNote, Voice, Formatter, Accidental, Factory } = Vex.Flow;
@@ -25,39 +25,43 @@ const NoteDisplay = ({ scale, major, withHoverEffect = true, showPlayButton = fa
     let rendered = false;
     const notes: string[] = ScalesUtils.makeScaleNotes(scale, major); // FIXME
 
+    console.log(notes)
+
     React.useEffect(() => {
         if (!rendered) {
-            const div = document.getElementById(elementId);
-            if (div) {
-                console.log(notes)
-                const renderer = new Renderer(div, Renderer.Backends.SVG);
-                renderer.resize(280, 120);
-                const context = renderer.getContext();
-                const stave = new Stave(10, 5, 260);
-                stave.addClef('treble');
-                stave.setContext(context).draw();
-
-                const voice = new Voice({ num_beats: 7, beat_value: 4 });
-
-                const staveNotes = notes.map(n => {
-                    const note = new StaveNote({ keys: [n], duration: "q" });
-                    if (n.includes('#')) {
-                        note.addModifier(new Accidental("#"), 0);
-                    }
-                    return note;
-                })
-
-                voice.addTickables(staveNotes);
-                new Formatter().joinVoices([voice]).format([voice], 220);
-                voice.draw(context, stave);
-                setState({ playing, staveNotes });
-                rendered = true;
-            }
+            drawNotes();
         }
     }, []);
 
     React.useEffect(() => () => InstrumentUtils.stopPlaying(), [])
 
+    const drawNotes = () => {
+        const div = document.getElementById(elementId);
+        if (div) {
+            const renderer = new Renderer(div, Renderer.Backends.SVG);
+            renderer.resize(280, 120);
+            const context = renderer.getContext();
+            const stave = new Stave(10, 5, 260);
+            stave.addClef('treble');
+            stave.setContext(context).draw();
+
+            const voice = new Voice({ num_beats: 7, beat_value: 4 });
+
+            const staveNotes = notes.map(n => {
+                const note = new StaveNote({ keys: [n], duration: "q" });
+                if (n.includes('#')) {
+                    note.addModifier(new Accidental("#"), 0);
+                }
+                return note;
+            })
+
+            voice.addTickables(staveNotes);
+            new Formatter().joinVoices([voice]).format([voice], 220);
+            voice.draw(context, stave);
+            setState({ playing, staveNotes });
+            rendered = true;
+        }
+    }
     const navigate = useNavigate();
 
     const selectScale = () => navigate(ROUTES.SELECTED_SCALE.replace(':type', major ? MAJOR : MINOR).replace(':note', scale));
@@ -77,15 +81,14 @@ const NoteDisplay = ({ scale, major, withHoverEffect = true, showPlayButton = fa
             };
 
             let beatTimes = 0;
-            const onBeat = (timer: NodeJS.Timer) => {
+            const onBeat = () => {
                 const index = beatTimes;
                 const note = staveNotes[index];
                 if (note) {
-                    setNoteStyle(note, "#f44336");
+                    highLightNote(note);
                     beatTimes++;
                 }
                 else {
-                    clearInterval(timer);
                     clearNotesStyles();
                 }
             };
@@ -94,21 +97,25 @@ const NoteDisplay = ({ scale, major, withHoverEffect = true, showPlayButton = fa
         }
     }
 
+    const unHighLightNote = (note: any) => setNoteStyle(note, "black");
+
+    const highLightNote = (note: any) => setNoteStyle(note, "#f44336");
+
     const setNoteStyle = (note: any, style: string) => {
         note.setStyle({ strokeStyle: style, fillStyle: style });
         note.draw();
     }
 
-    const clearNotesStyles = () => staveNotes.forEach(note => setNoteStyle(note, "black"));
-    
+    const clearNotesStyles = () => staveNotes.forEach(note => unHighLightNote(note));
+
     const renderPlayButton = () => {
         let button;
         if (showPlayButton) {
             const icon = playing ? <StopCircle /> : <PlayCircle />;
             button = (<div className={`play-button ${playing ? 'stop' : ''}`}>
-                <Button variant="contained" endIcon={icon} onClick={playTones}>
-                    {playing ? 'Stop' : 'Play'}
-                </Button>
+                <IconButton size="small" onClick={playTones}>
+                    {icon}
+                </IconButton>
             </div>);
         }
         return button;
