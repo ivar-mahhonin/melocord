@@ -1,5 +1,7 @@
 # MeloCord - Guitar Pocket Buddy
-https://user-images.githubusercontent.com/9988944/200029720-84bca45c-34fe-44f2-ad9e-1c7dca28a6b2.mov
+
+https://user-images.githubusercontent.com/9988944/200066482-cecc99b7-264b-4cad-9835-d9c2b2c504f5.mov
+
 
 
 
