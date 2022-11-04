@@ -25,8 +25,6 @@ const NoteDisplay = ({ scale, major, withHoverEffect = true, showPlayButton = fa
     let rendered = false;
     const notes: string[] = ScalesUtils.makeScaleNotes(scale, major); // FIXME
 
-    console.log(notes)
-
     React.useEffect(() => {
         if (!rendered) {
             drawNotes();
